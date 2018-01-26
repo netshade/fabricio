@@ -34,60 +34,63 @@ module Fabricio
 
     desc "organization", "Obtain organization"
     option :app_id => :required, :type => :string
-    option :short, :type => :boolean
     def organization
-      if options[:short]
-        say(client.organization.get.pretty_print)
-      else
-        say("#{client.organization.get.to_s}")
-      end
+      say("#{client.organization.get.to_s}")
     end
 
     desc "apps", "Obtain all app"
-    option :short, :type => :boolean
     def apps
-      if options[:short]
-        apps = client.app.all
-        say(apps.map {|app| app.pretty_print}.join("\n\n"))
-      else
-        say("#{client.app.all}")
-      end
+      say client.app.all.to_json
     end
 
     desc "app", "Obtain single app"
     option :app_id => :required, :type => :string
-    option :short, :type => :boolean
     def app(app_id)
-      if options[:short]
-        say("#{client.app.get(app_id).pretty_print}")
-      else
-        say("#{client.app.get(app_id).to_s}")
-      end
+      say("#{client.app.get(app_id).to_s}")
     end
 
     desc "builds", "Obtain all builds"
     option :app_id => :required, :type => :string
-    option :short, :type => :boolean
     def builds(app_id)
-      if options[:short]
-        builds = client.build.all(app_id)
-        say(builds.map {|build| build.pretty_print}.join("\n\n"))
-      else
-        say("#{client.build.all(app_id).to_s}")
-      end
+      say client.build.all(app_id).to_json
+    end
+
+    desc "topbuilds", "Obtain top builds"
+    option :app_id => :required, :type => :string
+    option :start => :optional, :type => :string
+    option :finish => :optional, :type => :string
+    def topbuilds(app_id, start = nil, finish = nil)
+      start  ||= Time.now - ((24 * 60 * 60) * 7)
+      finish ||= Time.now
+      say client.build.top_versions(app_id, start, finish).to_json
+    end
+
+    desc "os", "Obtain os distribution over time"
+    option :app_id => :required, :type => :string
+    option :start => :optional, :type => :string
+    option :finish => :optional, :type => :string
+    def os(app_id, start = nil, finish = nil)
+      start  ||= Time.now - ((24 * 60 * 60) * 7)
+      finish ||= Time.now
+      say client.app.os_distribution(app_id, start, finish).to_json
+    end
+
+    desc "device", "Obtain device distribution over time"
+    option :app_id => :required, :type => :string
+    option :start => :optional, :type => :string
+    option :finish => :optional, :type => :string
+    def device(app_id, start = nil, finish = nil)
+      start  ||= Time.now - ((24 * 60 * 60) * 7)
+      finish ||= Time.now
+      say client.app.device_distribution(app_id, start, finish).to_json
     end
 
     desc "build", "Obtain single build"
     option :app_id => :required, :type => :string
     option :version => :required, :type => :string
     option :build_number => :required, :type => :string
-    option :short, :type => :boolean
     def build(app_id, version, build_number)
-      if options[:short]
-        say("#{client.build.get(app_id, version, build_number).pretty_print}")
-      else
-        say("#{client.build.get(app_id, version, build_number).to_s}")
-      end
+      say client.build.get(app_id, version, build_number).to_json
     end
 
     private

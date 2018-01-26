@@ -32,7 +32,7 @@ module Fabricio
       # @param app_id [String]
       # @return [Fabricio::Networking::RequestModel]
       def get_app_request_model(app_id)
-        path = "#{FABRIC_API_PATH}#{app_endpoint(app_id)}"
+        path = File.join(FABRIC_API_PATH, app_endpoint(app_id))
         model = Fabricio::Networking::RequestModel.new do |config|
           config.type = :GET
           config.base_url = FABRIC_API_URL
@@ -65,6 +65,44 @@ module Fabricio
       # @return [Fabricio::Networking::RequestModel]
       def daily_new_request_model(session, app_id, start_time, end_time)
         path = growth_analytics_endpoint(session, app_id, 'daily_new')
+        params = time_range_params(start_time, end_time)
+        model = Fabricio::Networking::RequestModel.new do |config|
+          config.type = :GET
+          config.base_url = FABRIC_API_URL
+          config.api_path = path
+          config.params = params
+        end
+        model
+      end
+
+      # Returns device distribution timeseries for a given app
+      #
+      # @param session [Fabricio::Authorization::Session]
+      # @param app_id [String]
+      # @param start_time [String] Timestamp of the start date
+      # @param end_time [String] Timestamp of the end date
+      # @return [Fabricio::Networking::RequestModel]
+      def device_distribution_timeseries_model(session, app_id, start_time, end_time)
+        path = growth_analytics_endpoint(session, app_id, 'device_distribution_timeseries')
+        params = time_range_params(start_time, end_time)
+        model = Fabricio::Networking::RequestModel.new do |config|
+          config.type = :GET
+          config.base_url = FABRIC_API_URL
+          config.api_path = path
+          config.params = params
+        end
+        model
+      end
+
+      # Returns os distribution timeseries for a given app
+      #
+      # @param session [Fabricio::Authorization::Session]
+      # @param app_id [String]
+      # @param start_time [String] Timestamp of the start date
+      # @param end_time [String] Timestamp of the end date
+      # @return [Fabricio::Networking::RequestModel]
+      def os_distribution_timeseries_model(session, app_id, start_time, end_time)
+        path = growth_analytics_endpoint(session, app_id, 'os_distribution_timeseries')
         params = time_range_params(start_time, end_time)
         model = Fabricio::Networking::RequestModel.new do |config|
           config.type = :GET
@@ -362,7 +400,7 @@ module Fabricio
       # @param name [String]
       # @return [String]
       def growth_analytics_endpoint(session, app_id, name)
-        "#{FABRIC_API_PATH}#{org_app_endpoint(session, app_id)}/growth_analytics/#{name}.json"
+        File.join(FABRIC_API_PATH, org_app_endpoint(session, app_id), "growth_analytics", "#{name}.json")
       end
 
       # Returns an API path to organization endpoint
@@ -371,7 +409,7 @@ module Fabricio
       # @param app_id [String]
       # @return [String]
       def org_app_endpoint(session, app_id)
-        "#{org_endpoint(session)}/#{app_endpoint(app_id)}"
+        File.join(org_endpoint(session), app_endpoint(app_id))
       end
 
       # Returns an API path to app endpoint
@@ -379,7 +417,7 @@ module Fabricio
       # @param app_id [String]
       # @return [String]
       def app_endpoint(app_id)
-        "#{FABRIC_APPS_ENDPOINT}/#{app_id}"
+        File.join(FABRIC_APPS_ENDPOINT, app_id)
       end
 
       # Returns an API path to app endpoint
@@ -387,7 +425,7 @@ module Fabricio
       # @param session [Fabricio::Authorization::Session]
       # @return [String]
       def org_endpoint(session)
-        "#{FABRIC_ORGANIZATIONS_ENDPOINT}/#{session.organization_id}"
+        File.join(FABRIC_ORGANIZATIONS_ENDPOINT, session.organization_id)
       end
 
       # Returns an API path to app endpoint
@@ -397,8 +435,8 @@ module Fabricio
       # @return [Hash]
       def time_range_params(start_time, end_time)
         {
-            'start' => start_time,
-            'end' => end_time
+            'start' => start_time.to_i,
+            'end' => end_time.to_i
         }
       end
 

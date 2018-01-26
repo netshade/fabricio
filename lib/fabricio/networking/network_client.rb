@@ -29,6 +29,9 @@ module Fabricio
 
         connection = Faraday.new(:url => model.base_url) do |faraday|
           faraday.adapter Faraday.default_adapter
+          if ENV["VERBOSE"]
+            faraday.response :logger
+          end
         end
 
         if model.type == :GET

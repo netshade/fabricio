@@ -82,6 +82,34 @@ module Fabricio
         end
       end
 
+      # Obtains the OS distribution timeseries
+      #
+      # @param id [String] Application identifier
+      # @param start_time [String] Timestamp of the start date
+      # @param end_time [String] Timestamp of the end date
+      # @return [Array<Fabricio::Model::Point>]
+      def os_distribution(id, start_time, end_time)
+        request_model = @request_model_factory.os_distribution_timeseries_model(@session, id, start_time, end_time)
+        response = @network_client.perform_request(request_model)
+        JSON.parse(response.body)['series'].map do |array|
+          Fabricio::Model::Point.new(array)
+        end
+      end
+
+      # Obtains the device distribution timeseries
+      #
+      # @param id [String] Application identifier
+      # @param start_time [String] Timestamp of the start date
+      # @param end_time [String] Timestamp of the end date
+      # @return [Array<Fabricio::Model::Point>]
+      def device_distribution(id, start_time, end_time)
+        request_model = @request_model_factory.device_distribution_timeseries_model(@session, id, start_time, end_time)
+        response = @network_client.perform_request(request_model)
+        JSON.parse(response.body)['series'].map do |array|
+          Fabricio::Model::Point.new(array)
+        end
+      end
+
       # Obtains the count of weekly active users
       #
       # @param id [String] Application identifier

@@ -35,6 +35,14 @@ module Fabricio
       def to_s
         @json
       end
+
+      def as_json(*)
+        Hash[self.class.attributes.map { |m| [m, send(m)] }]
+      end
+
+      def to_json(*)
+        as_json.to_json
+      end
     end
   end
 end

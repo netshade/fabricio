@@ -14,6 +14,14 @@ module Fabricio
         @date = DateTime.strptime(attributes.first.to_s,'%s')
         @value = attributes.last
       end
+     
+      def as_json(*)
+        [@date.to_time.to_i, @value]
+      end
+     
+      def to_json(*)
+        as_json.to_json
+      end
     end
   end
 end
